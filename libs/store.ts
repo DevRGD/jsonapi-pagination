@@ -1,17 +1,18 @@
 import { create } from 'zustand';
 import { User } from '@/types/user';
 
+type SortKey = keyof Pick<User, 'name' | 'email'> | 'city';
+
 interface UserState {
   users: User[];
   filter: string;
-  sortKey: keyof Pick<User, 'name' | 'email'>;
+  sortKey: SortKey;
   sortOrder: 'asc' | 'desc';
   currentPage: number;
   pageSize: number;
-
   setUsers: (users: User[]) => void;
   setFilter: (filter: string) => void;
-  setSort: (key: keyof Pick<User, 'name' | 'email'>) => void;
+  setSort: (key: SortKey) => void;
   setPage: (page: number) => void;
 }
 
@@ -22,7 +23,6 @@ export const useUserStore = create<UserState>((set, get) => ({
   sortOrder: 'asc',
   currentPage: 1,
   pageSize: 5,
-
   setUsers: (users) => set({ users }),
   setFilter: (filter) => set({ filter, currentPage: 1 }),
   setSort: (key) => {

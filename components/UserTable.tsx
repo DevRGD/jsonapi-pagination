@@ -1,6 +1,7 @@
 'use client';
 import React, { useMemo } from 'react';
 import { useUserStore } from '@/libs/store';
+import type { User } from '@/types/user';
 
 export default function UserTable() {
   const { users, filter, sortKey, sortOrder, currentPage, pageSize, setSort, setPage } = useUserStore();
@@ -8,14 +9,20 @@ export default function UserTable() {
   const filtered = useMemo(() => {
     return users.filter(
       (u) =>
-        u.name.toLowerCase().includes(filter.toLowerCase()) || u.email.toLowerCase().includes(filter.toLowerCase()),
+        u.name.toLowerCase().includes(filter.toLowerCase()) ||
+        u.email.toLowerCase().includes(filter.toLowerCase()) ||
+        u.address.city.toLowerCase().includes(filter.toLowerCase()),
     );
   }, [users, filter]);
 
   const sorted = useMemo(() => {
-    return [...filtered].sort((a, b) => {
-      const aVal = a[sortKey]?.toString().toLowerCase();
-      const bVal = b[sortKey]?.toString().toLowerCase();
+    return [...filtered].sort((a: User, b: User) => {
+      const getValue = (u: User): string => {
+        if (sortKey === 'city') return u.address.city.toLowerCase();
+        return (u[sortKey] as string).toLowerCase();
+      };
+      const aVal = getValue(a);
+      const bVal = getValue(b);
       if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
       return 0;
@@ -37,14 +44,18 @@ export default function UserTable() {
               <th className="p-3 cursor-pointer hover:text-blue-400" onClick={() => setSort('email')}>
                 Email {sortKey === 'email' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
               </th>
+              <th className="p-3 cursor-pointer hover:text-blue-400" onClick={() => setSort('city')}>
+                City {sortKey === 'city' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+              </th>
               <th className="p-3">Company</th>
             </tr>
           </thead>
           <tbody>
-            {paginated.map((u) => (
+            {paginated.map((u: User) => (
               <tr key={u.id} className="border-b border-gray-700 hover:bg-gray-700/40 transition">
                 <td className="p-3 font-medium">{u.name}</td>
                 <td className="p-3">{u.email}</td>
+                <td className="p-3">{u.address.city}</td>
                 <td className="p-3">{u.company.name}</td>
               </tr>
             ))}
@@ -52,7 +63,6 @@ export default function UserTable() {
         </table>
       </div>
 
-      {/* Pagination + Page Size Selector */}
       <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-3 sm:space-y-0">
         <div className="flex items-center space-x-2 text-sm">
           <label htmlFor="pageSize" className="text-gray-400">
@@ -84,11 +94,9 @@ export default function UserTable() {
           >
             Previous
           </button>
-
           <span className="text-gray-400 text-sm">
             Page {currentPage} of {totalPages}
           </span>
-
           <button
             disabled={currentPage === totalPages}
             onClick={() => setPage(currentPage + 1)}

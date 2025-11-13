@@ -27,11 +27,9 @@ export default function Page() {
     <main className="min-h-screen bg-linear-to-b from-gray-900 via-gray-800 to-gray-900 text-gray-100 flex flex-col items-center py-10 px-4">
       <div className="w-full max-w-5xl bg-gray-800/50 backdrop-blur-md rounded-2xl shadow-lg border border-gray-700 p-8">
         <h1 className="text-3xl font-bold mb-6 text-center text-blue-400 drop-shadow-md">User Directory</h1>
-
         <div className="mb-6">
           <SearchBar />
         </div>
-
         <UserTable />
       </div>
     </main>
